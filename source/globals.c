@@ -1,5 +1,11 @@
 #include "globals.h"
 
+// 词法分析的token和token string
+int token;
+char *token_str;
+int cur_line_num = 1;
+
+// token string长度大于1的集合
 static char *token_strs[] = {
     "LE", "GE", "EQ", "NE",
     "AND", "OR",
@@ -7,6 +13,13 @@ static char *token_strs[] = {
     "STRING_CONST", "INT_CONST",
     "DO", "WHILE", "IF", "ELSE", "THEN", "END",
 };
+
+void next_token(){
+    token = yylex();
+    token_str = copyString(yytext);
+    //print_token();
+}
+
 
 void print_token()
 {

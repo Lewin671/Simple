@@ -7,7 +7,6 @@
 
 void init_scanner();
 void lex_error(char* msg,int line);
-int cur_line_num = 1;
 
 //LEX和YACC通过yyin文件指针识别输入源，如果用户未指明输入，默认从键盘获取输入。
 %}
@@ -61,13 +60,6 @@ SINGLE_COMMENT      ("//"[^\n]*)
  }
 %%
 
-
-
-void next_token(){
-    token = yylex();
-    token_str = copyString(yytext);
-    //print_token();
-}
 
 /*
 void init_scanner() {

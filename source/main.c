@@ -20,6 +20,12 @@ int main(int argc, char *argv[])
 {
     if (argc == 2)
     {
+        if(strcmp(argv[1],"-h") == 0 || strcmp(argv[1],"--help") == 0){
+            printf("Usage: \n");
+            printf("./main: run the program with input from terminal\n");
+            printf("./main file: run the program with the given file\n");    
+            return 0;
+        }
         yyin = fopen(argv[1], "rb+");
     }
     TreeNode *t = parse();
