@@ -7,7 +7,7 @@ Simple语言主要的语言特性：
 
 
 
-## 词法和文法定义
+## 词法和语法规则
 
 在Simple语言中，词法的规则如下：
 
@@ -25,8 +25,6 @@ Int常量 = 数字
 
 数字 = [0-9]([0-9])*
 
- 
-
 简单四则运算 = + | - | * | /
 
 简单布尔运算 = && | || | ! (C语言中的and、or、not)
@@ -37,6 +35,24 @@ Int常量 = 数字
 
 保留字: if then else end do while int string bool
 
+
+语法规则如下:
+
+语法的规则如下：
+
+program -> statement;stmt_seq // 至少有一条语句
+
+stmt_seq -> (statement;)* // // 一条或者多条语句，以逗号结尾
+
+statement -> define-stmt | if-stmt | assign-stmt | while-stmt
+
+define-stmt -> type id-list
+
+if-stmt -> if bool-exp then stmt_seq end | if bool-exp then stmt_seq else stmt_seq end
+
+assign-stmt -> id = arithmetic-exp | const_str
+
+while-stmt -> do stmt_seq while bool-exp
 
 
 ## 词法分析
