@@ -38,7 +38,6 @@ Int常量 = 数字
 
 语法规则如下:
 
-语法的规则如下：
 
 program -> statement;stmt_seq // 至少有一条语句
 
