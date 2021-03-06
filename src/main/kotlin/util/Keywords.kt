@@ -1,4 +1,4 @@
-package scanner
+package util
 
 /**
  * @Author qingyingliu
@@ -22,6 +22,6 @@ val keywords = arrayOf(
     "bool"
 )
 
-fun isKeywords(str:String):Boolean{
+fun isKeywords(str: String): Boolean {
     return keywords.contains(str)
 }

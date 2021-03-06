@@ -1,11 +1,10 @@
 package scanner
 
 /**
- * You can provide chars to Scanner with CharProvider
- * You can implement it by many ways
+ * 可以以不同的方式(根据具体实现)给Lex提供源程序的一行文本
  * @Author qingyingliu
  * @Date 2021/3/6 19:51
  */
-interface CharProvider {
-    fun nextLine():String?
+interface LineProvider {
+    fun nextLine(): String?
 }

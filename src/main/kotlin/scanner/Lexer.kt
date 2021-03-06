@@ -4,29 +4,28 @@ import util.isDigit
 import util.isKeywords
 import util.isLetter
 import util.isWhiteSpace
-import java.lang.StringBuilder
 
 /**
  * @Author qingyingliu
  * @Date 2021/3/6 17:01
  */
-class Scanner(private val charProvider: CharProvider) {
+class Lexer(private val lineProvider: LineProvider) {
     private var lineNumber = 1
     private var i = 0
-    private var currentLine = charProvider.nextLine()
+    private var currentLine = lineProvider.nextLine()
     private var goBackNow = false
-    private var lastChar:Char? = null
+    private var lastChar: Char? = null
 
 
     // 从charProvider中读取下一个字符
-    private fun nextCharFromLine():Char?{
-        if(currentLine != null){
-            return if(i >= currentLine!!.length){
-                currentLine = charProvider.nextLine()
+    private fun nextCharFromLine(): Char? {
+        if (currentLine != null) {
+            return if (i >= currentLine!!.length) {
+                currentLine = lineProvider.nextLine()
                 lineNumber++
                 i = 0
                 nextCharFromLine()
-            }else{
+            } else {
                 currentLine!![i++]
             }
         }
@@ -35,50 +34,50 @@ class Scanner(private val charProvider: CharProvider) {
     }
 
 
-    private fun nextChar():Char?{
-        return if(goBackNow){
+    private fun nextChar(): Char? {
+        return if (goBackNow) {
             goBackNow = false
             lastChar
-        }else{
+        } else {
             lastChar = nextCharFromLine()
             lastChar
         }
     }
 
-    private fun goBack(){
+    private fun goBack() {
         goBackNow = true
     }
 
-    fun nextToken():Token{
+    fun nextToken(): Token {
         var state = State.Start
-        var c:Char?
+        var c: Char?
         val literal = StringBuilder()
-        var currentToken:Token? = null
+        var currentToken: Token? = null
 
 
-        while (true){
+        while (true) {
             c = nextChar()
-            if(c == null) break
+            if (c == null) return Token(TokenType.EOF, "eof", lineNumber)
 
-            when(state){
-                State.Start ->{
-                    when{
-                        isDigit(c) ->{
+            when (state) {
+                State.Start -> {
+                    when {
+                        isDigit(c) -> {
                             state = State.InNum
                         }
-                        isLetter(c) || c == '_' ->{
+                        isLetter(c) || c == '_' -> {
                             state = State.InIdentifier
                         }
                         c == '=' -> state = State.InAssign
                         c == '<' -> state = State.InLess
                         c == '>' -> state = State.InMore
-                        c =='"' -> state = State.InStr
-                        c == ',' || c == ';'  -> {
-                            currentToken = Token(TokenType.SPECIAL_TOKEN,c.toString(),lineNumber)
+                        c == '"' -> state = State.InStr
+                        c == ',' || c == ';' -> {
+                            currentToken = Token(TokenType.SPECIAL_TOKEN, c.toString(), lineNumber)
                             break
                         }
-                        c =='+' || c == '-' || c == '*' -> {
-                            currentToken = Token(TokenType.ARITHMETIC_OPERATOR,c.toString(),lineNumber)
+                        c == '+' || c == '-' || c == '*' -> {
+                            currentToken = Token(TokenType.ARITHMETIC_OPERATOR, c.toString(), lineNumber)
                             break
                         }
                         c == '/' -> state = State.InComment1
@@ -86,52 +85,51 @@ class Scanner(private val charProvider: CharProvider) {
                         else -> break
                     }
                 }
-                State.InNum ->{
-                    if(!isDigit(c)){
+                State.InNum -> {
+                    if (!isDigit(c)) {
                         goBack()
-                        currentToken = Token(TokenType.CONSTANT_INT,literal.toString(),lineNumber)
+                        currentToken = Token(TokenType.CONSTANT_INT, literal.toString(), lineNumber)
                         break
                     }
                 }
-                State.InIdentifier ->{
-                    if(!(isLetter(c) || isDigit(c) || c=='_')){
+                State.InIdentifier -> {
+                    if (!(isLetter(c) || isDigit(c) || c == '_')) {
                         goBack()
-                        currentToken = if(isKeywords(literal.toString())){
-                            Token(TokenType.KEYWORD,literal.toString(),lineNumber)
-                        }else{
-                            Token(TokenType.IDENTIFIER,literal.toString(),lineNumber)
+                        currentToken = if (isKeywords(literal.toString())) {
+                            Token(TokenType.KEYWORD, literal.toString(), lineNumber)
+                        } else {
+                            Token(TokenType.IDENTIFIER, literal.toString(), lineNumber)
                         }
                         break
                     }
                 }
-                State.InAssign, State.InLess,State.InMore->{
-                    currentToken = if(c == '='){
-                        Token(TokenType.LOGICAL_OPERATOR,literal.toString(),lineNumber)
-                    }else{
+                State.InAssign, State.InLess, State.InMore -> {
+                    currentToken = if (c == '=') {
+                        Token(TokenType.LOGICAL_OPERATOR, literal.toString(), lineNumber)
+                    } else {
                         goBack()
-                        Token(TokenType.ARITHMETIC_OPERATOR,literal.toString(),lineNumber)
+                        Token(TokenType.ARITHMETIC_OPERATOR, literal.toString(), lineNumber)
                     }
                     break
                 }
-                State.InStr ->{
-                    if(c == '"'){
-                        currentToken = Token(TokenType.CONSTANT_STRING,literal.toString(),lineNumber)
+                State.InStr -> {
+                    if (c == '"') {
+                        currentToken = Token(TokenType.CONSTANT_STRING, literal.toString(), lineNumber)
                         break
                     }
                 }
-                State.InComment1 ->{
-                    if(c == '/'){
+                State.InComment1 -> {
+                    if (c == '/') {
                         state = State.InComment2
-                    }else{
+                    } else {
                         goBack()
-                        currentToken = Token(TokenType.ARITHMETIC_OPERATOR,literal.toString(),lineNumber)
+                        currentToken = Token(TokenType.ARITHMETIC_OPERATOR, literal.toString(), lineNumber)
                         break
                     }
                 }
-                State.InComment2 ->{
-                    if(c.toString() == System.lineSeparator()){
-                        // Notice
-                        currentToken = Token(TokenType.COMMENT,literal.toString(),lineNumber-1)
+                State.InComment2 -> {
+                    if (c.toString() == System.lineSeparator()) {
+                        currentToken = Token(TokenType.COMMENT, literal.toString(), lineNumber)
                         break
                     }
                 }
@@ -142,9 +140,9 @@ class Scanner(private val charProvider: CharProvider) {
 
         }
 
-        if(currentToken == null){
-            return if(state == State.InIdentifier) Token(TokenType.IDENTIFIER,literal.toString(),lineNumber)
-            else Token(TokenType.UNEXPECTED_TOKEN,literal.toString(),lineNumber)
+        if (currentToken == null) {
+            return if (state == State.InIdentifier) Token(TokenType.IDENTIFIER, literal.toString(), lineNumber)
+            else Token(TokenType.UNEXPECTED_TOKEN, literal.toString(), lineNumber)
         }
 
         return currentToken
